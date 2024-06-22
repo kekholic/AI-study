@@ -13,6 +13,11 @@ const functions = {
   calculate({ expression }) {
     return math.evaluate(expression)
   },
+  async generateImage({prompt}) {
+    const result =  await openAI.images.generate({prompt})
+    console.log(result)
+    return result.data[0].url
+  }
 }
 
 const getComplition = (messages) => {
@@ -36,6 +41,21 @@ const getComplition = (messages) => {
           required: ['expression'],
         },
       },
+      {
+        name: 'generateImage',
+        description: 'Create or generate image based on the description',
+        parameters: {
+          type: 'object',
+          properties: {
+            prompt: {
+              type: 'string',
+              description:
+                'The description of the image to generate',
+            },
+          },
+          required: ['prompt'],
+        },
+      },
     ],
   })
 }
@@ -43,7 +63,7 @@ const getComplition = (messages) => {
 let response
 while (true) {
   response = await getComplition(messages)
-  
+
   if (response.choices[0].finish_reason === 'stop') {
     console.log(response.choices[0].message.content)
     break
